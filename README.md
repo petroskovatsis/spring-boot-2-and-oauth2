@@ -1,4 +1,4 @@
-# Spring-boot-2-and-OAuth2
+# Spring-Boot-2-and-OAuth2
 
 Spring Boot 2 + OAuth2 for standalone or micro-services architecture use.
 
