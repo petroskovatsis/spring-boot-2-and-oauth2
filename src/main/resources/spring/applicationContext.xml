@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+
+    <!-- scan packages -->
+    <context:component-scan base-package="com.petroskovatsis.examples.springboot2andoauth2"/>
+    <jpa:repositories base-package="com.petroskovatsis.examples.springboot2andoauth2.repository"/>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+
+    <!-- database Config-->
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close"
+          p:driverClassName="${settings.jdbc.driverClassName}"
+          p:url="${settings.jdbc.url}"
+          p:username="${settings.jdbc.username}"
+          p:password="${settings.jdbc.password}"
+          p:initialSize="${settings.jdbc.initial_size}"
+          p:maxTotal="${settings.jdbc.max_total}"
+          p:maxIdle="${settings.jdbc.max_idle}"
+          p:minIdle="${settings.jdbc.min_idle}"
+          p:testOnBorrow="true"
+          p:validationQuery="select 1"/>
+
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="packagesToScan">
+            <list>
+                <value>com.petroskovatsis.examples.springboot2andoauth2.domain</value>
+            </list>
+        </property>
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+        </property>
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.dialect">${settings.hibernate.dialect}</prop>
+                <prop key="hibernate.show_sql">${settings.hibernate.show_sql}</prop>
+                <prop key="hibernate.format_sql">${settings.hibernate.format_sql}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- utils -->
+    <bean id="modelMapper" class="org.modelmapper.ModelMapper"/>
+    <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+    <bean id="tokenStore" class="org.springframework.security.oauth2.provider.token.store.JdbcTokenStore">
+        <constructor-arg name="dataSource" ref="dataSource"/>
+    </bean>
+
+</beans>
